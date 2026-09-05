@@ -101,6 +101,7 @@ function Home() {
 
   return (
     <SiteLayout>
+      <PasswordPopup />
       <section className="hero-glow">
         <div className="mx-auto max-w-6xl px-5 pt-16 pb-10 sm:pt-24">
           <p className="font-mono text-xs uppercase tracking-[0.3em] text-primary">

@@ -41,6 +41,47 @@ export const Route = createFileRoute("/")({
   component: Home,
 });
 
+function PasswordPopup() {
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (!localStorage.getItem("thingzip-welcome-seen")) {
+      setOpen(true);
+    }
+  }, []);
+
+  const close = () => {
+    localStorage.setItem("thingzip-welcome-seen", "1");
+    setOpen(false);
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={(v) => !v && close()}>
+      <DialogContent className="border-primary/30 bg-surface sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2 font-display text-2xl">
+            <Flame className="h-6 w-6 text-primary" />
+            Heads up
+          </DialogTitle>
+          <DialogDescription className="text-muted-foreground">
+            Every archive on this site uses the same password.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="py-6 text-center">
+          <p className="font-mono text-xs uppercase tracking-[0.25em] text-muted-foreground">
+            the password is always
+          </p>
+          <p className="mt-3 font-display text-6xl font-bold text-primary">thing</p>
+        </div>
+        <Button onClick={close} className="w-full">
+          Got it
+        </Button>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 function Home() {
   const { data: zips } = useSuspenseQuery(zipsQuery);
   const [busy, setBusy] = useState<string | null>(null);

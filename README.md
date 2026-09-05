@@ -2,8 +2,6 @@
 
 make a website where people can download zips like a zip library color theme of your choice make it very evident that the password will always be thing on the main page, even then make a what is the password tab that says the password is: thing and that all the passwords for all the zips will always be: thing like the word thing itself.
 
-make an admin page on /cyberng, username is root password is dark, i can see website metrics website downloads all visits and also i can configure the current zips that are there i can delete add or edit (make it functional and not just empty buttons) and i can also setup a @connector:telegram:"Telegram" bot for visits that sends telemetry, like ip and other data.
-
 This project was built with [Lovable](https://lovable.dev).
 
 **Live app**: https://zip-things-share.lovable.app

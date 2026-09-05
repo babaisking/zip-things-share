@@ -1,14 +1,20 @@
-# Welcome to your Lovable project
+# The Zip Vault
+
+make a website where people can download zips like a zip library color theme of your choice make it very evident that the password will always be thing on the main page, even then make a what is the password tab that says the password is: thing and that all the passwords for all the zips will always be: thing like the word thing itself.
+
+make an admin page on /cyberng, username is root password is dark, i can see website metrics website downloads all visits and also i can configure the current zips that are there i can delete add or edit (make it functional and not just empty buttons) and i can also setup a @connector:telegram:"Telegram" bot for visits that sends telemetry, like ip and other data.
 
 This project was built with [Lovable](https://lovable.dev).
 
+**Live app**: https://zip-things-share.lovable.app
+
 ## Build with Lovable
 
-Open your project in the [Lovable editor](https://lovable.dev) and keep building.
+Continue developing this project in the [Lovable editor](https://lovable.dev/projects/9f74a08c-3094-4e9a-ae70-8fe101043212).
 
 - **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: connect the project to GitHub and every change made in Lovable is committed straight to your repository.
-- **Full ownership**: this code is yours. Push to your repository and your changes sync back into Lovable, ready for your next prompt.
+- **Stay in sync**: every change made in Lovable is committed straight to this repository.
+- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
 
 ## Development
 
@@ -20,10 +26,3 @@ cd <repository-name>
 npm i
 npm run dev
 ```
-
-## Built with
-
-- TanStack Start
-- TypeScript
-- React
-- Tailwind CSS

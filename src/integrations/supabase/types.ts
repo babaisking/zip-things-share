@@ -14,7 +14,119 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      app_settings: {
+        Row: {
+          key: string
+          value: string | null
+        }
+        Insert: {
+          key: string
+          value?: string | null
+        }
+        Update: {
+          key?: string
+          value?: string | null
+        }
+        Relationships: []
+      }
+      downloads: {
+        Row: {
+          created_at: string
+          id: string
+          ip: string | null
+          user_agent: string | null
+          zip_id: string | null
+          zip_name: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          ip?: string | null
+          user_agent?: string | null
+          zip_id?: string | null
+          zip_name?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          ip?: string | null
+          user_agent?: string | null
+          zip_id?: string | null
+          zip_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "downloads_zip_id_fkey"
+            columns: ["zip_id"]
+            isOneToOne: false
+            referencedRelation: "zips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      visits: {
+        Row: {
+          country: string | null
+          created_at: string
+          id: string
+          ip: string | null
+          path: string | null
+          referer: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          country?: string | null
+          created_at?: string
+          id?: string
+          ip?: string | null
+          path?: string | null
+          referer?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          country?: string | null
+          created_at?: string
+          id?: string
+          ip?: string | null
+          path?: string | null
+          referer?: string | null
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
+      zips: {
+        Row: {
+          created_at: string
+          description: string
+          download_count: number
+          id: string
+          name: string
+          size_bytes: number
+          storage_path: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string
+          download_count?: number
+          id?: string
+          name: string
+          size_bytes?: number
+          storage_path: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          download_count?: number
+          id?: string
+          name?: string
+          size_bytes?: number
+          storage_path?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

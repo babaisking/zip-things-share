@@ -1,18 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
-import { Download, FileArchive, Flame, Loader2 } from "lucide-react";
+import { useState } from "react";
+import { Download, FileArchive, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { listZips, requestDownload } from "@/lib/zips.functions";
 import { SiteLayout, PasswordBanner, formatBytes } from "@/components/SiteLayout";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 
 const zipsQuery = queryOptions({
   queryKey: ["zips"],
@@ -41,47 +34,6 @@ export const Route = createFileRoute("/")({
   component: Home,
 });
 
-function PasswordPopup() {
-  const [open, setOpen] = useState(false);
-
-  useEffect(() => {
-    const dismissed = window.localStorage.getItem("thingzip-password-popup");
-    if (dismissed !== "1") setOpen(true);
-  }, []);
-
-  function dismiss() {
-    window.localStorage.setItem("thingzip-password-popup", "1");
-    setOpen(false);
-  }
-
-  return (
-    <Dialog open={open} onOpenChange={(next) => (next ? setOpen(true) : dismiss())}>
-      <DialogContent className="border-primary/30 bg-surface sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle className="flex items-center justify-center gap-2 text-center text-2xl font-bold sm:justify-start sm:text-left">
-            <Flame className="h-6 w-6 text-primary" />
-            The password is always thing.
-          </DialogTitle>
-          <DialogDescription className="text-center sm:text-left">
-            Every archive on this site uses the exact same password. It never changes.
-          </DialogDescription>
-        </DialogHeader>
-
-        <div className="mt-2 flex flex-col items-center gap-4 sm:flex-row sm:justify-between">
-          <p className="font-mono text-sm text-muted-foreground">Password to every zip:</p>
-          <div className="rounded-xl border border-primary/40 bg-primary/10 px-6 py-3 font-mono text-3xl font-bold text-primary">
-            thing
-          </div>
-        </div>
-
-        <div className="mt-2 flex justify-end">
-          <Button onClick={dismiss}>Got it</Button>
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
 function Home() {
   const { data: zips } = useSuspenseQuery(zipsQuery);
   const [busy, setBusy] = useState<string | null>(null);
@@ -101,7 +53,6 @@ function Home() {
 
   return (
     <SiteLayout>
-      <PasswordPopup />
       <section className="hero-glow">
         <div className="mx-auto max-w-6xl px-5 pt-16 pb-10 sm:pt-24">
           <p className="font-mono text-xs uppercase tracking-[0.3em] text-primary">

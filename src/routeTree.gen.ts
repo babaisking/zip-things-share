@@ -10,33 +10,53 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CyberngRouteImport } from './routes/cyberng'
+import { Route as PasswordRouteImport } from './routes/password'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CyberngRoute = CyberngRouteImport.update({
+  id: '/cyberng',
+  path: '/cyberng',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PasswordRoute = PasswordRouteImport.update({
+  id: '/password',
+  path: '/password',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/cyberng': typeof CyberngRoute
+  '/password': typeof PasswordRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/cyberng': typeof CyberngRoute
+  '/password': typeof PasswordRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/cyberng': typeof CyberngRoute
+  '/password': typeof PasswordRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/cyberng' | '/password'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/cyberng' | '/password'
+  id: '__root__' | '/' | '/cyberng' | '/password'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CyberngRoute: typeof CyberngRoute
+  PasswordRoute: typeof PasswordRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +68,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/cyberng': {
+      id: '/cyberng'
+      path: '/cyberng'
+      fullPath: '/cyberng'
+      preLoaderRoute: typeof CyberngRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/password': {
+      id: '/password'
+      path: '/password'
+      fullPath: '/password'
+      preLoaderRoute: typeof PasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CyberngRoute: CyberngRoute,
+  PasswordRoute: PasswordRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

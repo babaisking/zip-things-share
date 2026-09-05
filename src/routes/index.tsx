@@ -1,11 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
-import { useState } from "react";
-import { Download, FileArchive, Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Download, FileArchive, Flame, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { listZips, requestDownload } from "@/lib/zips.functions";
 import { SiteLayout, PasswordBanner, formatBytes } from "@/components/SiteLayout";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 const zipsQuery = queryOptions({
   queryKey: ["zips"],

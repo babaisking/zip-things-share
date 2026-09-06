@@ -1,0 +1,2 @@
+create policy "no public access to geo_cache" on public.geo_cache for all to anon, authenticated using (false) with check (false);
+create policy "no public access to visit_pings" on public.visit_pings for all to anon, authenticated using (false) with check (false);

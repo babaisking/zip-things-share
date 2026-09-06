@@ -31,7 +31,10 @@ export type Database = {
       }
       downloads: {
         Row: {
+          city: string | null
+          country: string | null
           created_at: string
+          device: string | null
           id: string
           ip: string | null
           user_agent: string | null
@@ -39,7 +42,10 @@ export type Database = {
           zip_name: string | null
         }
         Insert: {
+          city?: string | null
+          country?: string | null
           created_at?: string
+          device?: string | null
           id?: string
           ip?: string | null
           user_agent?: string | null
@@ -47,7 +53,10 @@ export type Database = {
           zip_name?: string | null
         }
         Update: {
+          city?: string | null
+          country?: string | null
           created_at?: string
+          device?: string | null
           id?: string
           ip?: string | null
           user_agent?: string | null
@@ -64,32 +73,128 @@ export type Database = {
           },
         ]
       }
+      geo_cache: {
+        Row: {
+          city: string | null
+          country: string | null
+          country_code: string | null
+          created_at: string
+          ip: string
+          latitude: number | null
+          longitude: number | null
+          org: string | null
+          region: string | null
+        }
+        Insert: {
+          city?: string | null
+          country?: string | null
+          country_code?: string | null
+          created_at?: string
+          ip: string
+          latitude?: number | null
+          longitude?: number | null
+          org?: string | null
+          region?: string | null
+        }
+        Update: {
+          city?: string | null
+          country?: string | null
+          country_code?: string | null
+          created_at?: string
+          ip?: string
+          latitude?: number | null
+          longitude?: number | null
+          org?: string | null
+          region?: string | null
+        }
+        Relationships: []
+      }
+      visit_pings: {
+        Row: {
+          base_text: string
+          id: string
+          ip: string
+          last_sent_at: string
+          path: string
+          revisit_count: number
+          telegram_message_id: number | null
+        }
+        Insert: {
+          base_text?: string
+          id?: string
+          ip: string
+          last_sent_at?: string
+          path: string
+          revisit_count?: number
+          telegram_message_id?: number | null
+        }
+        Update: {
+          base_text?: string
+          id?: string
+          ip?: string
+          last_sent_at?: string
+          path?: string
+          revisit_count?: number
+          telegram_message_id?: number | null
+        }
+        Relationships: []
+      }
       visits: {
         Row: {
+          browser: string | null
+          city: string | null
           country: string | null
           created_at: string
+          device: string | null
           id: string
           ip: string | null
+          is_refresh: boolean
+          language: string | null
+          org: string | null
+          os: string | null
           path: string | null
           referer: string | null
+          region: string | null
+          screen: string | null
+          timezone: string | null
           user_agent: string | null
         }
         Insert: {
+          browser?: string | null
+          city?: string | null
           country?: string | null
           created_at?: string
+          device?: string | null
           id?: string
           ip?: string | null
+          is_refresh?: boolean
+          language?: string | null
+          org?: string | null
+          os?: string | null
           path?: string | null
           referer?: string | null
+          region?: string | null
+          screen?: string | null
+          timezone?: string | null
           user_agent?: string | null
         }
         Update: {
+          browser?: string | null
+          city?: string | null
           country?: string | null
           created_at?: string
+          device?: string | null
           id?: string
           ip?: string | null
+          is_refresh?: boolean
+          language?: string | null
+          org?: string | null
+          os?: string | null
           path?: string | null
           referer?: string | null
+          region?: string | null
+          screen?: string | null
+          timezone?: string | null
           user_agent?: string | null
         }
         Relationships: []

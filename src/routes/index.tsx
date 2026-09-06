@@ -1,10 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { Download, FileArchive, Flame, Loader2 } from "lucide-react";
+import { Download, FileArchive, Flame, Loader2, Smartphone } from "lucide-react";
 import { toast } from "sonner";
 import { listZips, requestDownload } from "@/lib/zips.functions";
-import { SiteLayout, PasswordBanner, formatBytes } from "@/components/SiteLayout";
+import { SiteLayout, PasswordBanner, formatBytes, useIsMobileDevice } from "@/components/SiteLayout";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -43,6 +43,7 @@ export const Route = createFileRoute("/")({
 
 function PasswordPopup() {
   const [open, setOpen] = useState(false);
+  const isMobile = useIsMobileDevice();
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -74,11 +75,40 @@ function PasswordPopup() {
           </p>
           <p className="mt-3 font-display text-6xl font-bold text-primary">thing</p>
         </div>
+        {isMobile ? (
+          <p className="rounded-lg border border-primary/40 bg-primary/10 p-3 text-center text-sm text-muted-foreground">
+            You are on a phone — password-protected zips can only be extracted on a computer.
+          </p>
+        ) : null}
         <Button onClick={close} className="w-full">
           Got it
         </Button>
       </DialogContent>
     </Dialog>
+  );
+}
+
+function MobileNotice() {
+  const isMobile = useIsMobileDevice();
+  if (!isMobile) return null;
+  return (
+    <div className="mx-auto mt-8 max-w-6xl px-5">
+      <div className="panel border-primary/50 bg-primary/10 p-5">
+        <div className="flex items-start gap-3">
+          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-primary/20 text-primary">
+            <Smartphone className="h-5 w-5" />
+          </span>
+          <div>
+            <p className="font-display text-lg font-bold text-primary">You are on a phone</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Every archive here is password protected, and phones normally cannot open a
+              password-protected zip. Download it on a computer and unlock it there with the
+              password <span className="font-mono font-bold text-primary">thing</span>.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -102,6 +132,7 @@ function Home() {
   return (
     <SiteLayout>
       <PasswordPopup />
+      <MobileNotice />
       <section className="hero-glow">
         <div className="mx-auto max-w-6xl px-5 pt-16 pb-10 sm:pt-24">
           <p className="font-mono text-xs uppercase tracking-[0.3em] text-primary">

@@ -1,7 +1,18 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Archive, KeyRound } from "lucide-react";
 import { recordVisit } from "@/lib/zips.functions";
+
+export function useIsMobileDevice() {
+  const [mobile, setMobile] = useState(false);
+  useEffect(() => {
+    const touch = navigator.maxTouchPoints > 1;
+    const ua = /Mobi|Android|iPhone|iPod|Windows Phone|IEMobile|BlackBerry/i.test(navigator.userAgent);
+    const ipad = /iPad|Macintosh/.test(navigator.userAgent) && touch;
+    setMobile(ua || ipad || (touch && window.innerWidth < 900));
+  }, []);
+  return mobile;
+}
 
 function VisitTracker() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
@@ -10,11 +21,22 @@ function VisitTracker() {
   useEffect(() => {
     if (seen.current === pathname) return;
     seen.current = pathname;
-    void recordVisit({ data: { path: pathname } }).catch(() => undefined);
+    const nav = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming | undefined;
+    const isRefresh = nav?.type === "reload" || nav?.type === "back_forward";
+    void recordVisit({
+      data: {
+        path: pathname,
+        isRefresh: Boolean(isRefresh),
+        screen: `${window.screen.width}×${window.screen.height} @${window.devicePixelRatio}x`,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        touch: navigator.maxTouchPoints > 0,
+      },
+    }).catch(() => undefined);
   }, [pathname]);
 
   return null;
 }
+
 
 export function SiteLayout({ children }: { children: ReactNode }) {
   return (

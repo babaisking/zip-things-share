@@ -29,50 +29,10 @@ export const adminStatus = createServerFn({ method: "GET" }).handler(async () =>
 
 export const adminMetrics = createServerFn({ method: "GET" }).handler(async () => {
   await requireAdmin();
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-
-  const [visitsAll, downloadsAll, zipsAll, recentVisits, recentDownloads, dailyVisits] =
-    await Promise.all([
-      supabaseAdmin.from("visits").select("id", { count: "exact", head: true }),
-      supabaseAdmin.from("downloads").select("id", { count: "exact", head: true }),
-      supabaseAdmin.from("zips").select("id", { count: "exact", head: true }),
-      supabaseAdmin
-        .from("visits")
-        .select("id, ip, path, country, user_agent, referer, created_at")
-        .order("created_at", { ascending: false })
-        .limit(50),
-      supabaseAdmin
-        .from("downloads")
-        .select("id, zip_name, ip, user_agent, created_at")
-        .order("created_at", { ascending: false })
-        .limit(50),
-      supabaseAdmin
-        .from("visits")
-        .select("created_at")
-        .gte("created_at", new Date(Date.now() - 7 * 86400 * 1000).toISOString()),
-    ]);
-
-  const byDay = new Map<string, number>();
-  for (let i = 6; i >= 0; i--) {
-    const d = new Date(Date.now() - i * 86400 * 1000).toISOString().slice(0, 10);
-    byDay.set(d, 0);
-  }
-  for (const row of dailyVisits.data ?? []) {
-    const d = new Date(row.created_at as string).toISOString().slice(0, 10);
-    if (byDay.has(d)) byDay.set(d, (byDay.get(d) ?? 0) + 1);
-  }
-
-  return {
-    totals: {
-      visits: visitsAll.count ?? 0,
-      downloads: downloadsAll.count ?? 0,
-      zips: zipsAll.count ?? 0,
-    },
-    recentVisits: recentVisits.data ?? [],
-    recentDownloads: recentDownloads.data ?? [],
-    dailyVisits: Array.from(byDay, ([day, count]) => ({ day, count })),
-  };
+  const { buildStats } = await import("./stats.server");
+  return await buildStats();
 });
+
 
 export const adminListZips = createServerFn({ method: "GET" }).handler(async () => {
   await requireAdmin();

@@ -110,7 +110,7 @@ const GATEWAY_URL = "https://connector-gateway.lovable.dev/telegram";
 async function telegramCall(
   method: string,
   body: Record<string, unknown>,
-): Promise<{ ok: boolean; result?: { message_id?: number }; error?: string }> {
+): Promise<{ ok: boolean; result?: { message_id?: number } | undefined; error?: string | undefined }> {
   const lovableKey = process.env["LOVABLE_API_KEY"];
   const telegramKey = process.env["TELEGRAM_API_KEY"];
   if (!lovableKey || !telegramKey) {
@@ -153,7 +153,7 @@ export async function getChatId(): Promise<string | null> {
 export async function sendTelegram(
   text: string,
   chatIdOverride?: string,
-): Promise<{ ok: boolean; error?: string; messageId?: number }> {
+): Promise<{ ok: boolean; error?: string | undefined; messageId?: number | undefined }> {
   const chatId = chatIdOverride ?? (await getChatId());
   if (!chatId) return { ok: false, error: "No Telegram chat ID saved yet" };
   const res = await telegramCall("sendMessage", {

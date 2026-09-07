@@ -498,6 +498,20 @@ function TelegramCard({
   );
 }
 
+/**
+ * Converts a file to base64 in small chunks. Spreading a whole file into
+ * String.fromCharCode blows the argument limit on anything but tiny files.
+ */
+async function fileToBase64(file: File): Promise<string> {
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  const CHUNK = 0x8000;
+  let binary = "";
+  for (let i = 0; i < bytes.length; i += CHUNK) {
+    binary += String.fromCharCode.apply(null, Array.from(bytes.subarray(i, i + CHUNK)));
+  }
+  return btoa(binary);
+}
+
 function ZipDialog({
   initial,
   onClose,
@@ -529,9 +543,7 @@ function ZipDialog({
       } = { name: name.trim(), description: description.trim() };
       if (initial.id) payload.id = initial.id;
       if (file) {
-        const buffer = await file.arrayBuffer();
-        const b64 = btoa(String.fromCharCode(...new Uint8Array(buffer)));
-        payload = { ...payload, fileBase64: b64, fileName: file.name };
+        payload = { ...payload, fileBase64: await fileToBase64(file), fileName: file.name };
       }
       await adminUpsertZip({ data: payload });
       toast.success(initial.id ? "Zip updated" : "Zip added");

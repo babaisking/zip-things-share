@@ -164,6 +164,39 @@ function StatCard({
   );
 }
 
+function BreakdownCard({
+  title,
+  items,
+}: {
+  title: string;
+  items: Array<{ label: string; count: number }> | undefined;
+}) {
+  const rows = (items ?? []).slice(0, 6);
+  const max = rows[0]?.count ?? 1;
+  return (
+    <div className="panel p-5">
+      <p className="text-sm font-medium text-muted-foreground">{title}</p>
+      <ul className="mt-3 space-y-2.5">
+        {rows.map((r) => (
+          <li key={r.label}>
+            <div className="flex items-center justify-between gap-3 text-sm">
+              <span className="truncate">{r.label}</span>
+              <span className="font-mono text-xs text-primary">{r.count}</span>
+            </div>
+            <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-secondary">
+              <div
+                className="h-full rounded-full bg-primary"
+                style={{ width: `${Math.max(6, (r.count / max) * 100)}%` }}
+              />
+            </div>
+          </li>
+        ))}
+        {rows.length === 0 && <li className="py-4 text-sm text-muted-foreground">No data yet.</li>}
+      </ul>
+    </div>
+  );
+}
+
 function AdminDashboard() {
   const qc = useQueryClient();
 
@@ -252,6 +285,15 @@ function AdminDashboard() {
               </ResponsiveContainer>
             </div>
           </div>
+        </section>
+
+        {/* Breakdowns */}
+        <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <BreakdownCard title="Top countries" items={metrics.data?.byCountry} />
+          <BreakdownCard title="Top cities" items={metrics.data?.byCity} />
+          <BreakdownCard title="Devices" items={metrics.data?.byDevice} />
+          <BreakdownCard title="Where visits come from" items={metrics.data?.byOrigin} />
+          <BreakdownCard title="Downloads per zip" items={metrics.data?.byZip} />
         </section>
 
         {/* Zips CRUD */}

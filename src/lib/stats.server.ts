@@ -84,10 +84,10 @@ export async function buildStats() {
 }
 
 function list(items: Breakdown[], limit = 5) {
-  if (items.length === 0) return "  <i>no data yet</i>";
+  if (items.length === 0) return "none yet";
   return items
     .slice(0, limit)
-    .map((i, idx) => `  ${idx + 1}. ${escapeHtml(i.label)} — <b>${i.count}</b>`)
+    .map((i) => `${escapeHtml(i.label)} — ${i.count}`)
     .join("\n");
 }
 
@@ -95,17 +95,14 @@ export async function statsMessage() {
   const s = await buildStats();
   const today = s.dailyVisits[s.dailyVisits.length - 1]?.count ?? 0;
   return (
-    `<b>📊 THING.zip stats</b>\n` +
-    `<code>────────────────────</code>\n` +
-    `👣 <b>Visits:</b> ${s.totals.visits}  (today ${today})\n` +
-    `⬇️ <b>Downloads:</b> ${s.totals.downloads}\n` +
-    `📦 <b>Archives:</b> ${s.totals.zips}\n` +
-    `🔄 <b>Refreshes (30d):</b> ${s.totals.refreshes}\n\n` +
-    `<b>🌍 Top countries</b>\n${list(s.byCountry)}\n\n` +
-    `<b>🏙 Top cities</b>\n${list(s.byCity)}\n\n` +
-    `<b>🖥 Devices</b>\n${list(s.byDevice)}\n\n` +
-    `<b>↩️ Top origins</b>\n${list(s.byOrigin)}\n\n` +
-    `<b>📦 Most downloaded</b>\n${list(s.byZip)}\n` +
-    `<code>────────────────────</code>\n<i>${new Date().toUTCString()}</i>`
+    `<b>THING.zip stats</b>\n` +
+    `Visits: ${s.totals.visits} (today ${today})\n` +
+    `Downloads: ${s.totals.downloads}\n` +
+    `Archives: ${s.totals.zips}\n\n` +
+    `<b>Countries</b>\n${list(s.byCountry)}\n\n` +
+    `<b>Cities</b>\n${list(s.byCity)}\n\n` +
+    `<b>Devices</b>\n${list(s.byDevice)}\n\n` +
+    `<b>Origins</b>\n${list(s.byOrigin)}\n\n` +
+    `<b>Most downloaded</b>\n${list(s.byZip)}`
   );
 }

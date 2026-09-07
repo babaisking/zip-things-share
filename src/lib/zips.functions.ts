@@ -114,16 +114,11 @@ export const requestDownload = createServerFn({ method: "POST" })
     if (await telegramEnabled()) {
       const place = [geo.city, geo.region, geo.country].filter(Boolean).join(", ") || "Unknown";
       const text =
-        `<b>⬇️ Download — THING.zip</b>\n` +
-        `<code>────────────────────</code>\n` +
-        `📦 <b>Archive:</b> ${escapeHtml(zip.name)}\n` +
-        `🌍 <b>Location:</b> ${escapeHtml(place)}\n` +
-        `🛰 <b>IP:</b> <code>${escapeHtml(meta.ip)}</code>\n` +
-        `🖥 <b>Device:</b> ${escapeHtml(meta.device)} · ${escapeHtml(meta.os)} · ${escapeHtml(meta.browser)}\n` +
-        `🏢 <b>Network:</b> ${escapeHtml(geo.org ?? "?")}\n` +
-        `🧾 <b>UA:</b> <code>${escapeHtml(meta.user_agent.slice(0, 180))}</code>\n` +
-        `<code>────────────────────</code>\n` +
-        `<i>${new Date().toUTCString()}</i>`;
+        `<b>Download</b> — ${escapeHtml(zip.name)}\n` +
+        `IP: <code>${escapeHtml(meta.ip)}</code>\n` +
+        `Location: ${escapeHtml(place)}\n` +
+        `Device: ${escapeHtml(meta.device)}, ${escapeHtml(meta.os)}, ${escapeHtml(meta.browser)}\n` +
+        `Network: ${escapeHtml(geo.org ?? "unknown")}`;
       await sendTelegram(text).catch(() => undefined);
     }
 

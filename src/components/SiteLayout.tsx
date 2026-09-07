@@ -1,7 +1,19 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { Archive, KeyRound } from "lucide-react";
+import { Archive, KeyRound, Laptop, Lock } from "lucide-react";
 import { recordVisit } from "@/lib/zips.functions";
+
+/** True only for actual phones/tablets running iOS or Android. */
+export function useIsPhoneOrTablet() {
+  const [blocked, setBlocked] = useState(false);
+  useEffect(() => {
+    const ua = navigator.userAgent;
+    const iosLike = /iPhone|iPad|iPod/i.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+    const android = /Android/i.test(ua);
+    setBlocked(iosLike || android);
+  }, []);
+  return blocked;
+}
 
 export function useIsMobileDevice() {
   const [mobile, setMobile] = useState(false);
@@ -38,7 +50,46 @@ function VisitTracker() {
 }
 
 
+function PhoneWall() {
+  return (
+    <div className="hero-glow grid min-h-screen place-items-center px-5">
+      <div className="panel neon-ring w-full max-w-md p-8 text-center">
+        <span className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-primary/15 text-primary">
+          <Laptop className="h-7 w-7" />
+        </span>
+        <h1 className="mt-5 font-display text-3xl font-bold">Computer only</h1>
+        <p className="mt-3 text-sm text-muted-foreground">
+          THING.zip only works on a computer. Every archive here is password protected, and phones
+          and tablets cannot open a password-protected zip — so viewing, sharing and downloading are
+          all limited to desktop.
+        </p>
+        <div className="mt-6 rounded-xl border border-primary/40 bg-primary/10 px-5 py-4">
+          <p className="font-mono text-[11px] uppercase tracking-[0.25em] text-muted-foreground">
+            the password is always
+          </p>
+          <p className="mt-1 font-display text-4xl font-bold text-primary">thing</p>
+        </div>
+        <p className="mt-6 flex items-center justify-center gap-2 text-xs text-muted-foreground">
+          <Lock className="h-3.5 w-3.5" />
+          Open this page on a PC or Mac to continue.
+        </p>
+      </div>
+    </div>
+  );
+}
+
 export function SiteLayout({ children }: { children: ReactNode }) {
+  const blocked = useIsPhoneOrTablet();
+
+  if (blocked) {
+    return (
+      <>
+        <VisitTracker />
+        <PhoneWall />
+      </>
+    );
+  }
+
   return (
     <div className="min-h-screen">
       <VisitTracker />

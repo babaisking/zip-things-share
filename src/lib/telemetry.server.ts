@@ -189,7 +189,7 @@ export async function sendVisitPing(ip: string, path: string, text: string): Pro
 
   if (existing && fresh) {
     const count = (existing.revisit_count ?? 0) + 1;
-    const edited = `${existing.base_text}\n\n<b>🔁 Revisit ×${count}</b>  <i>(last ${new Date().toUTCString().slice(17, 25)} UTC)</i>`;
+    const edited = `${existing.base_text}\n<b>Revisit ×${count}</b> (last ${new Date().toUTCString().slice(17, 25)} UTC)`;
     const res = await telegramCall("editMessageText", {
       chat_id: chatId,
       message_id: existing.telegram_message_id,

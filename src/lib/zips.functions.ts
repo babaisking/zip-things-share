@@ -56,22 +56,30 @@ export const recordVisit = createServerFn({ method: "POST" })
       timezone: data.timezone ?? null,
     });
 
-    // Page refreshes are logged but never notified and never counted as a revisit.
+    // Refreshes are logged but never pinged. Mobile visits are logged but never pinged.
     if (data.isRefresh) return { ok: true };
+    if (meta.isMobile) return { ok: true };
 
     if (await telegramEnabled()) {
       const place = [geo.city, geo.region, geo.country].filter(Boolean).join(", ") || "Unknown";
+      const src = describeReferer(meta.referer);
+      const browserLine = meta.isHeadless
+        ? `${meta.browser} ⚠️ headless`
+        : meta.isBot
+          ? `${meta.browser} ⚠️ bot/script`
+          : meta.browser;
       const text =
-        `<b>New visit</b> — ${escapeHtml(data.path)}\n` +
-        `IP: <code>${escapeHtml(meta.ip)}</code>\n` +
-        `Location: ${escapeHtml(place)}\n` +
-        `Device: ${escapeHtml(meta.device)}, ${escapeHtml(meta.os)}, ${escapeHtml(meta.browser)}\n` +
-        `Network: ${escapeHtml(geo.org ?? "unknown")}\n` +
-        `From: ${escapeHtml(meta.referer ?? "direct")}`;
+        `🖥 <b>Visit</b> · ${escapeHtml(data.path)}\n` +
+        `📍 ${escapeHtml(place)}\n` +
+        `🌐 <code>${escapeHtml(meta.ip)}</code>\n` +
+        `💻 ${escapeHtml(meta.os)} · ${escapeHtml(browserLine)}\n` +
+        `📡 ${escapeHtml(geo.org ?? "unknown network")}\n` +
+        `↩️ ${escapeHtml(src.label)} (${src.kind})`;
       await sendVisitPing(meta.ip, data.path, text).catch(() => undefined);
     }
     return { ok: true };
   });
+
 
 export const requestDownload = createServerFn({ method: "POST" })
   .inputValidator((data) => z.object({ id: z.string().uuid() }).parse(data))

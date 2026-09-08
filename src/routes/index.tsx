@@ -165,11 +165,12 @@ function Home() {
         {zips.length === 0 ? (
           <div className="panel mt-6 grid place-items-center gap-2 p-16 text-center">
             <FileArchive className="h-8 w-8 text-muted-foreground" />
-            <p className="font-medium">The shelf is empty right now</p>
+            <p className="font-medium">Nothing here yet</p>
             <p className="text-sm text-muted-foreground">
-              New archives will show up here as soon as they are added.
+              New archives will show up here once added.
             </p>
           </div>
+
         ) : (
           <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {zips.map((zip) => (

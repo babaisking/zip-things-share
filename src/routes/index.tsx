@@ -141,11 +141,10 @@ function Home() {
           <h1 className="mt-4 max-w-3xl text-5xl font-bold leading-[1.05] sm:text-7xl">
             Grab a zip.
             <br />
-            <span className="text-gradient">The password is thing.</span>
+            <span className="text-gradient">Password is thing.</span>
           </h1>
           <p className="mt-6 max-w-xl text-lg text-muted-foreground">
-            Everything here is packed into a password-protected archive. There is only one password
-            and it never changes.
+            One password for everything. It never changes.
           </p>
 
           <div className="mt-10">
@@ -161,6 +160,7 @@ function Home() {
             {zips.length} {zips.length === 1 ? "file" : "files"}
           </span>
         </div>
+
 
         {zips.length === 0 ? (
           <div className="panel mt-6 grid place-items-center gap-2 p-16 text-center">

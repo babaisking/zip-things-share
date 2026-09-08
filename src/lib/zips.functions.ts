@@ -121,16 +121,24 @@ export const requestDownload = createServerFn({ method: "POST" })
         .eq("id", zip.id);
     }
 
-    if (await telegramEnabled()) {
+    if (!meta.isMobile && (await telegramEnabled())) {
       const place = [geo.city, geo.region, geo.country].filter(Boolean).join(", ") || "Unknown";
+      const src = describeReferer(meta.referer);
+      const browserLine = meta.isHeadless
+        ? `${meta.browser} ⚠️ headless`
+        : meta.isBot
+          ? `${meta.browser} ⚠️ bot/script`
+          : meta.browser;
       const text =
-        `<b>Download</b> — ${escapeHtml(zip.name)}\n` +
-        `IP: <code>${escapeHtml(meta.ip)}</code>\n` +
-        `Location: ${escapeHtml(place)}\n` +
-        `Device: ${escapeHtml(meta.device)}, ${escapeHtml(meta.os)}, ${escapeHtml(meta.browser)}\n` +
-        `Network: ${escapeHtml(geo.org ?? "unknown")}`;
+        `⬇️ <b>Download</b> · ${escapeHtml(zip.name)}\n` +
+        `📍 ${escapeHtml(place)}\n` +
+        `🌐 <code>${escapeHtml(meta.ip)}</code>\n` +
+        `💻 ${escapeHtml(meta.os)} · ${escapeHtml(browserLine)}\n` +
+        `📡 ${escapeHtml(geo.org ?? "unknown network")}\n` +
+        `↩️ ${escapeHtml(src.label)} (${src.kind})`;
       await sendTelegram(text).catch(() => undefined);
     }
+
 
     return { url: signed.signedUrl };
   });

@@ -101,9 +101,8 @@ function MobileNotice() {
           <div>
             <p className="font-display text-lg font-bold text-primary">You are on a phone</p>
             <p className="mt-1 text-sm text-muted-foreground">
-              Every archive here is password protected, and phones normally cannot open a
-              password-protected zip. Download it on a computer and unlock it there with the
-              password <span className="font-mono font-bold text-primary">thing</span>.
+              Every archive is password protected. Phones cannot open them. Download on a computer
+              and unlock with <span className="font-mono font-bold text-primary">thing</span>.
             </p>
           </div>
         </div>
@@ -111,6 +110,7 @@ function MobileNotice() {
     </div>
   );
 }
+
 
 function Home() {
   const { data: zips } = useSuspenseQuery(zipsQuery);

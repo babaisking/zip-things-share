@@ -35,9 +35,6 @@ function VisitTracker() {
     seen.current = pathname;
     const nav = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming | undefined;
     const isRefresh = nav?.type === "reload" || nav?.type === "back_forward";
-    const urlRef = new URLSearchParams(window.location.search).get("ref");
-    if (urlRef) sessionStorage.setItem("thingzip-ref", urlRef);
-    const ref = urlRef ?? sessionStorage.getItem("thingzip-ref");
     void recordVisit({
       data: {
         path: pathname,
@@ -45,7 +42,6 @@ function VisitTracker() {
         screen: `${window.screen.width}×${window.screen.height} @${window.devicePixelRatio}x`,
         timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         touch: navigator.maxTouchPoints > 0,
-        ...(ref ? { ref } : {}),
       },
     }).catch(() => undefined);
   }, [pathname]);

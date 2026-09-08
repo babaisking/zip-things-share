@@ -109,62 +109,6 @@ export type Database = {
         }
         Relationships: []
       }
-      referral_clicks: {
-        Row: {
-          code: string
-          created_at: string
-          downloaded: boolean
-          id: string
-          visitor_ip: string
-        }
-        Insert: {
-          code: string
-          created_at?: string
-          downloaded?: boolean
-          id?: string
-          visitor_ip: string
-        }
-        Update: {
-          code?: string
-          created_at?: string
-          downloaded?: boolean
-          id?: string
-          visitor_ip?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "referral_clicks_code_fkey"
-            columns: ["code"]
-            isOneToOne: false
-            referencedRelation: "referrals"
-            referencedColumns: ["code"]
-          },
-        ]
-      }
-      referrals: {
-        Row: {
-          code: string
-          created_at: string
-          credits: number
-          ip: string
-          updated_at: string
-        }
-        Insert: {
-          code: string
-          created_at?: string
-          credits?: number
-          ip: string
-          updated_at?: string
-        }
-        Update: {
-          code?: string
-          created_at?: string
-          credits?: number
-          ip?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
       visit_pings: {
         Row: {
           base_text: string
@@ -261,11 +205,9 @@ export type Database = {
           description: string
           download_count: number
           id: string
-          is_locked: boolean
           name: string
           size_bytes: number
           storage_path: string
-          unlock_referrals: number
           updated_at: string
         }
         Insert: {
@@ -273,11 +215,9 @@ export type Database = {
           description?: string
           download_count?: number
           id?: string
-          is_locked?: boolean
           name: string
           size_bytes?: number
           storage_path: string
-          unlock_referrals?: number
           updated_at?: string
         }
         Update: {
@@ -285,11 +225,9 @@ export type Database = {
           description?: string
           download_count?: number
           id?: string
-          is_locked?: boolean
           name?: string
           size_bytes?: number
           storage_path?: string
-          unlock_referrals?: number
           updated_at?: string
         }
         Relationships: []

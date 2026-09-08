@@ -7,7 +7,9 @@ import {
   telegramEnabled,
   escapeHtml,
   lookupGeo,
+  describeReferer,
 } from "./telemetry.server";
+
 
 export const listZips = createServerFn({ method: "GET" }).handler(async () => {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");

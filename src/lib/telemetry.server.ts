@@ -95,11 +95,12 @@ export function describeReferer(referer: string | null): { label: string; kind: 
   const searches = ["google.", "bing.com", "duckduckgo.com", "yahoo.", "yandex.", "ecosia.org", "brave.com"];
   const socials = ["facebook", "instagram", "twitter", "x.com", "reddit", "tiktok", "snapchat", "linkedin", "pinterest", "discord", "telegram", "whatsapp", "youtube"];
 
-  if (apps[host]) {
-    const label = apps[host];
-    const kind = /app|mobile|link/i.test(label) ? "app" : "social";
-    return { label, kind: kind as "app" | "social" };
+  const known = apps[host];
+  if (known) {
+    const kind: "app" | "social" = /app|mobile|link/i.test(known) ? "app" : "social";
+    return { label: known, kind };
   }
+
   if (searches.some((s) => host.includes(s))) return { label: `${host} (search)`, kind: "search" };
   if (socials.some((s) => host.includes(s))) return { label: host, kind: "social" };
   return { label: host, kind: "site" };

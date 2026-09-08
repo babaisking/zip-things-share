@@ -130,12 +130,13 @@ export function SiteLayout({ children }: { children: ReactNode }) {
       <footer className="mt-24 border-t border-border/70">
         <div className="mx-auto max-w-6xl px-5 py-10 text-sm text-muted-foreground">
           <p className="font-mono">
-            Reminder: the password for every archive is{" "}
+            Password for every archive:{" "}
             <span className="font-bold text-primary">thing</span>.
           </p>
-          <p className="mt-2 text-xs">THING.zip — a very small zip library.</p>
+          <p className="mt-2 text-xs">THING.zip</p>
         </div>
       </footer>
+
     </div>
   );
 }

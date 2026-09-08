@@ -101,9 +101,8 @@ function MobileNotice() {
           <div>
             <p className="font-display text-lg font-bold text-primary">You are on a phone</p>
             <p className="mt-1 text-sm text-muted-foreground">
-              Every archive here is password protected, and phones normally cannot open a
-              password-protected zip. Download it on a computer and unlock it there with the
-              password <span className="font-mono font-bold text-primary">thing</span>.
+              Every archive is password protected. Phones cannot open them. Download on a computer
+              and unlock with <span className="font-mono font-bold text-primary">thing</span>.
             </p>
           </div>
         </div>
@@ -111,6 +110,7 @@ function MobileNotice() {
     </div>
   );
 }
+
 
 function Home() {
   const { data: zips } = useSuspenseQuery(zipsQuery);
@@ -141,11 +141,10 @@ function Home() {
           <h1 className="mt-4 max-w-3xl text-5xl font-bold leading-[1.05] sm:text-7xl">
             Grab a zip.
             <br />
-            <span className="text-gradient">The password is thing.</span>
+            <span className="text-gradient">Password is thing.</span>
           </h1>
           <p className="mt-6 max-w-xl text-lg text-muted-foreground">
-            Everything here is packed into a password-protected archive. There is only one password
-            and it never changes.
+            One password for everything. It never changes.
           </p>
 
           <div className="mt-10">
@@ -162,14 +161,16 @@ function Home() {
           </span>
         </div>
 
+
         {zips.length === 0 ? (
           <div className="panel mt-6 grid place-items-center gap-2 p-16 text-center">
             <FileArchive className="h-8 w-8 text-muted-foreground" />
-            <p className="font-medium">The shelf is empty right now</p>
+            <p className="font-medium">Nothing here yet</p>
             <p className="text-sm text-muted-foreground">
-              New archives will show up here as soon as they are added.
+              New archives will show up here once added.
             </p>
           </div>
+
         ) : (
           <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {zips.map((zip) => (

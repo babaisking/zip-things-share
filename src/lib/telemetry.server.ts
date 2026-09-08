@@ -9,22 +9,39 @@ export function clientIp(): string {
   return candidates.find((v) => v && v.length > 0) ?? "unknown";
 }
 
-export type Ua = { device: string; browser: string; os: string };
+export type Ua = {
+  device: string;
+  browser: string;
+  os: string;
+  isMobile: boolean;
+  isBot: boolean;
+  isHeadless: boolean;
+};
 
 export function parseUserAgent(ua: string): Ua {
   const s = ua ?? "";
   const isTablet = /iPad|Tablet|PlayBook|Silk|(Android(?!.*Mobile))/i.test(s);
-  const isMobile = !isTablet && /Mobi|Android|iPhone|iPod|Windows Phone|IEMobile|BlackBerry/i.test(s);
-  const device = isTablet ? "Tablet" : isMobile ? "Mobile" : "Desktop";
+  const isPhone = !isTablet && /Mobi|Android|iPhone|iPod|Windows Phone|IEMobile|BlackBerry/i.test(s);
+  const device = isTablet ? "Tablet" : isPhone ? "Mobile" : "Desktop";
+
+  const isHeadless = /HeadlessChrome|Headless|PhantomJS|Puppeteer|Playwright|Electron/i.test(s);
+  const isBot = /bot|crawler|spider|slurp|bingpreview|facebookexternalhit|whatsapp|telegrambot|discordbot|twitterbot|linkedinbot|embedly|curl|wget|python-requests|axios|node-fetch|go-http-client/i.test(s);
 
   let browser = "Unknown";
-  if (/Edg\//i.test(s)) browser = "Edge";
+  if (isHeadless) {
+    if (/HeadlessChrome/i.test(s)) browser = "Headless Chrome";
+    else if (/Puppeteer/i.test(s)) browser = "Puppeteer";
+    else if (/Playwright/i.test(s)) browser = "Playwright";
+    else if (/PhantomJS/i.test(s)) browser = "PhantomJS";
+    else if (/Electron/i.test(s)) browser = "Electron";
+    else browser = "Headless browser";
+  } else if (/Edg\//i.test(s)) browser = "Edge";
   else if (/OPR\/|Opera/i.test(s)) browser = "Opera";
   else if (/SamsungBrowser/i.test(s)) browser = "Samsung Internet";
   else if (/Firefox\//i.test(s)) browser = "Firefox";
   else if (/Chrome\//i.test(s)) browser = "Chrome";
   else if (/Safari\//i.test(s)) browser = "Safari";
-  else if (/bot|crawler|spider|curl|wget|python/i.test(s)) browser = "Bot / script";
+  else if (isBot) browser = "Bot / script";
 
   let os = "Unknown";
   if (/Windows NT 10/i.test(s)) os = "Windows 10/11";
@@ -35,18 +52,70 @@ export function parseUserAgent(ua: string): Ua {
   else if (/CrOS/i.test(s)) os = "ChromeOS";
   else if (/Linux/i.test(s)) os = "Linux";
 
-  return { device, browser, os };
+  return { device, browser, os, isMobile: isPhone || isTablet, isBot, isHeadless };
+}
+
+/** Best-effort friendly source label from a referer URL. */
+export function describeReferer(referer: string | null): { label: string; kind: "direct" | "app" | "site" | "search" | "social" } {
+  if (!referer) return { label: "direct", kind: "direct" };
+  let host = "";
+  try {
+    host = new URL(referer).hostname.replace(/^www\./, "");
+  } catch {
+    return { label: referer, kind: "site" };
+  }
+  const apps: Record<string, string> = {
+    "l.facebook.com": "Facebook app",
+    "lm.facebook.com": "Facebook app",
+    "m.facebook.com": "Facebook mobile",
+    "facebook.com": "Facebook",
+    "l.instagram.com": "Instagram app",
+    "instagram.com": "Instagram",
+    "t.co": "X/Twitter app",
+    "x.com": "X/Twitter",
+    "twitter.com": "X/Twitter",
+    "out.reddit.com": "Reddit app",
+    "reddit.com": "Reddit",
+    "old.reddit.com": "Reddit",
+    "discord.com": "Discord",
+    "discordapp.com": "Discord app",
+    "t.me": "Telegram app",
+    "web.telegram.org": "Telegram web",
+    "youtube.com": "YouTube",
+    "m.youtube.com": "YouTube mobile",
+    "youtu.be": "YouTube link",
+    "tiktok.com": "TikTok",
+    "snapchat.com": "Snapchat",
+    "linkedin.com": "LinkedIn",
+    "lnkd.in": "LinkedIn app",
+    "pinterest.com": "Pinterest",
+    "whatsapp.com": "WhatsApp",
+    "wa.me": "WhatsApp link",
+  };
+  const searches = ["google.", "bing.com", "duckduckgo.com", "yahoo.", "yandex.", "ecosia.org", "brave.com"];
+  const socials = ["facebook", "instagram", "twitter", "x.com", "reddit", "tiktok", "snapchat", "linkedin", "pinterest", "discord", "telegram", "whatsapp", "youtube"];
+
+  const known = apps[host];
+  if (known) {
+    const kind: "app" | "social" = /app|mobile|link/i.test(known) ? "app" : "social";
+    return { label: known, kind };
+  }
+
+  if (searches.some((s) => host.includes(s))) return { label: `${host} (search)`, kind: "search" };
+  if (socials.some((s) => host.includes(s))) return { label: host, kind: "social" };
+  return { label: host, kind: "site" };
 }
 
 export function requestMeta() {
   const ua = getRequestHeader("user-agent") ?? "unknown";
+  const parsed = parseUserAgent(ua);
   return {
     ip: clientIp(),
     user_agent: ua,
     referer: getRequestHeader("referer") ?? null,
     country: getRequestHeader("cf-ipcountry") ?? null,
     language: getRequestHeader("accept-language") ?? null,
-    ...parseUserAgent(ua),
+    ...parsed,
   };
 }
 
@@ -60,6 +129,58 @@ export type Geo = {
 
 const EMPTY_GEO: Geo = { country: null, country_code: null, region: null, city: null, org: null };
 
+/** Race a promise against a timeout. Rejects on timeout so Promise.any can try the next provider. */
+function withTimeout<T>(p: Promise<T>, ms: number): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const t = setTimeout(() => reject(new Error("timeout")), ms);
+    p.then((v) => { clearTimeout(t); resolve(v); }, (e) => { clearTimeout(t); reject(e); });
+  });
+}
+
+type GeoProvider = { name: string; fetch: (ip: string) => Promise<Geo> };
+
+const providers: GeoProvider[] = [
+  {
+    name: "ipwho.is",
+    fetch: async (ip) => {
+      const r = await fetch(`https://ipwho.is/${encodeURIComponent(ip)}`);
+      if (!r.ok) throw new Error(String(r.status));
+      const b = await r.json() as { success?: boolean; country?: string; country_code?: string; region?: string; city?: string; connection?: { org?: string; isp?: string } };
+      if (!b.success) throw new Error("not ok");
+      return { country: b.country ?? null, country_code: b.country_code ?? null, region: b.region ?? null, city: b.city ?? null, org: b.connection?.org ?? b.connection?.isp ?? null };
+    },
+  },
+  {
+    name: "ipapi.co",
+    fetch: async (ip) => {
+      const r = await fetch(`https://ipapi.co/${encodeURIComponent(ip)}/json/`);
+      if (!r.ok) throw new Error(String(r.status));
+      const b = await r.json() as { error?: boolean; country_name?: string; country_code?: string; region?: string; city?: string; org?: string };
+      if (b.error) throw new Error("not ok");
+      return { country: b.country_name ?? null, country_code: b.country_code ?? null, region: b.region ?? null, city: b.city ?? null, org: b.org ?? null };
+    },
+  },
+  {
+    name: "ip-api.com",
+    fetch: async (ip) => {
+      const r = await fetch(`https://ip-api.com/json/${encodeURIComponent(ip)}?fields=status,country,countryCode,regionName,city,isp,org,as`);
+      if (!r.ok) throw new Error(String(r.status));
+      const b = await r.json() as { status?: string; country?: string; countryCode?: string; regionName?: string; city?: string; isp?: string; org?: string; as?: string };
+      if (b.status !== "success") throw new Error("not ok");
+      return { country: b.country ?? null, country_code: b.countryCode ?? null, region: b.regionName ?? null, city: b.city ?? null, org: b.org ?? b.isp ?? b.as ?? null };
+    },
+  },
+  {
+    name: "freeipapi.com",
+    fetch: async (ip) => {
+      const r = await fetch(`https://free.freeipapi.com/api/json/${encodeURIComponent(ip)}`);
+      if (!r.ok) throw new Error(String(r.status));
+      const b = await r.json() as { countryName?: string; countryCode?: string; regionName?: string; cityName?: string };
+      return { country: b.countryName ?? null, country_code: b.countryCode ?? null, region: b.regionName ?? null, city: b.cityName ?? null, org: null };
+    },
+  },
+];
+
 export async function lookupGeo(ip: string): Promise<Geo> {
   if (!ip || ip === "unknown" || ip.startsWith("127.") || ip.startsWith("192.168.") || ip === "::1") {
     return EMPTY_GEO;
@@ -72,37 +193,26 @@ export async function lookupGeo(ip: string): Promise<Geo> {
     .maybeSingle();
   if (cached) return cached as Geo;
 
+  // Race all providers; take the first that succeeds within 2.5s each.
+  let geo: Geo = EMPTY_GEO;
   try {
-    const res = await fetch(`https://ipwho.is/${encodeURIComponent(ip)}`);
-    if (!res.ok) return EMPTY_GEO;
-    const body = (await res.json()) as {
-      success?: boolean;
-      country?: string;
-      country_code?: string;
-      region?: string;
-      city?: string;
-      latitude?: number;
-      longitude?: number;
-      connection?: { org?: string; isp?: string };
-    };
-    if (!body.success) return EMPTY_GEO;
-    const geo: Geo = {
-      country: body.country ?? null,
-      country_code: body.country_code ?? null,
-      region: body.region ?? null,
-      city: body.city ?? null,
-      org: body.connection?.org ?? body.connection?.isp ?? null,
-    };
-    await supabaseAdmin.from("geo_cache").upsert({
-      ip,
-      ...geo,
-      latitude: body.latitude ?? null,
-      longitude: body.longitude ?? null,
-    });
-    return geo;
+    geo = await Promise.any(providers.map((p) => withTimeout(p.fetch(ip), 2500)));
   } catch {
-    return EMPTY_GEO;
+    // All providers failed; try sequentially with a longer timeout as a last resort.
+    for (const p of providers) {
+      try {
+        geo = await withTimeout(p.fetch(ip), 4000);
+        break;
+      } catch {
+        // try next
+      }
+    }
   }
+
+  if (geo.country || geo.city) {
+    await supabaseAdmin.from("geo_cache").upsert({ ip, ...geo, latitude: null, longitude: null }).then(() => undefined, () => undefined);
+  }
+  return geo;
 }
 
 const GATEWAY_URL = "https://connector-gateway.lovable.dev/telegram";
@@ -165,10 +275,6 @@ export async function sendTelegram(
   return { ok: res.ok, error: res.error, messageId: res.result?.message_id };
 }
 
-/**
- * Sends a message, but if the same ip+path pinged recently it edits the previous
- * message and appends a "Revisit xN" line instead of sending a new notification.
- */
 const BURST_WINDOW_MS = 120_000;
 
 export async function sendVisitPing(ip: string, path: string, text: string): Promise<void> {
@@ -189,7 +295,7 @@ export async function sendVisitPing(ip: string, path: string, text: string): Pro
 
   if (existing && fresh) {
     const count = (existing.revisit_count ?? 0) + 1;
-    const edited = `${existing.base_text}\n<b>Revisit ×${count}</b> (last ${new Date().toUTCString().slice(17, 25)} UTC)`;
+    const edited = `${existing.base_text}\n\n🔁 <b>REVISIT ×${count}</b> · last ${new Date().toUTCString().slice(17, 25)} UTC`;
     const res = await telegramCall("editMessageText", {
       chat_id: chatId,
       message_id: existing.telegram_message_id,
